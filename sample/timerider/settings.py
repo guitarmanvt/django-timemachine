@@ -10,7 +10,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'timerider'             # Or path to database file if using sqlite3.
+DATABASE_NAME = 'db.sqlite'             # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -78,3 +78,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'timerider.timemachine',
 )
+
+#Import per-user settings.
+#NOTE: "my_settings.py" should NEVER be added to SVN! It's your secret stuff.
+try:
+    from my_settings import *
+    print "Imported personal settings from my_settings.py"
+except:
+    pass
