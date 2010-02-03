@@ -1,0 +1,59 @@
+INSTALLATION INSTRUCTIONS
+=========================
+This sample Django project is intended only to help you code the django-timemachine app.  Therefore, it's extremely basic.
+
+PRE-REQUISITES
+--------------
+1. Download and install Django from http://djangoproject.com/ .
+2. Do the Django tutorial.  It's easy, fun and it'll give you a background for this.
+3. Get Subversion from http://subversion.tigris.org/
+If you want to contribute:
+4. Get a Google Code account at http://code.google.com/ .
+5. Ping me, so I can figure out how to grant you access.  (It's still very new to me.)
+
+GETTING THE READ-ONLY VERSION
+-----------------------------
+This is intended for those who just want to kick the tires.  If you want to contribute, skip to the next section.
+
+1. Check out a read-only working copy anonymously over HTTP:
+$ svn checkout http://django-timemachine.googlecode.com/svn/sample/timerider/ timerider-read-only 
+
+This should download the source code for this "timerider".  However, because the "timerider" is setup for coders, you will have to do a tiny bit more work.
+
+2. Modify EXTERNALS.txt to point to "http:" (without the "s").
+$ cd timerider-read-only
+$ your-favorite-editor EXTERNALS.txt  # (That means use your favorite editor.)
+
+3. Tell your project about this change:
+$ svn propset svn:externals -F EXTERNALS.txt .
+
+4. Get the timemachine app:
+$ svn up
+
+Subversion should pull in a read-only copy of the timemachine app.  You now have what you need.
+
+GETTING THE WRITEABLE VERSION
+-----------------------------
+This is intended for those who want to contribute, skip to the next section.
+
+1. Check out a working copy over HTTPS:
+$ svn checkout https://django-timemachine.googlecode.com/svn/sample/timerider/ timerider 
+
+This should download the source code for this "timerider".  It should also pull down the "timemachine" app as an external.  If it doesn't, then just run this:
+$ cd timerider
+$ svn up
+
+RUNNING THE PROJECT
+-------------------
+1. The first time, you will need to setup your database:
+$ python manage.py syncdb
+
+2. After that, you can start the development server:
+$ python manage.py runserver
+
+3. Point your browser at http://127.0.0.1:8000/admin/ to see the admin interface.
+
+(Right now, there's not much more to see. Start coding! ;)
+
+Have fun!
+JSA
