@@ -34,7 +34,7 @@ Subversion should pull in a read-only copy of the timemachine app.  You now have
 
 GETTING THE WRITEABLE VERSION
 -----------------------------
-This is intended for those who want to contribute, skip to the next section.
+This is intended for those who want to contribute.
 
 1. Check out a working copy over HTTPS:
 $ svn checkout https://django-timemachine.googlecode.com/svn/sample/timerider/ timerider 
