@@ -1,23 +1,20 @@
 """
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
+Consolidated tests.
+Copyright (c) 2010 
 """
 
-from django.test import TestCase
+import unittest
+from test_time_machine_dynamic import *
+from test_time_machine_static import *
+from test_time_machine_mixed import *
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
+print 
+suite = unittest.TestLoader().loadTestsFromTestCase(TestTimeMachineStatic)
+unittest.TextTestRunner(verbosity=2).run(suite)
 
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
-"""}
-
+suite = unittest.TestLoader().loadTestsFromTestCase(TestTimeMachineDynamic)
+unittest.TextTestRunner(verbosity=2).run(suite)
+ 
+suite = unittest.TestLoader().loadTestsFromTestCase(TestTimeMachineMixed)
+unittest.TextTestRunner(verbosity=2).run(suite)
+print
