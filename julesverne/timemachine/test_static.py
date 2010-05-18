@@ -1,5 +1,6 @@
 #REVIEW: Rework tests so that they individually finish in < 3 seconds each.
 #        Otherwise, person running tests will think they're timing out.
+#RESPONSE: These three tests only take 7 seconds to run all together.
 from time import sleep
 import unittest
 

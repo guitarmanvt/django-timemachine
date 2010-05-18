@@ -1,5 +1,8 @@
 #REVIEW: Rework tests so that they individually finish in < 3 seconds each.
 #        Otherwise, person running tests will think they're timing out.
+#RESPONSE:  This has a few sleep statements in it to make sure time goes by
+#        during the test.  I think it's important that the test stays long 
+#        (about 8 seconds) for this reason.
 
 from time import sleep
 import unittest
@@ -7,7 +10,6 @@ import unittest
 from datetime import timedelta
 from datetime import datetime as py_datetime
 from time_machine import datetime, round_to_seconds
-
 
 
 
