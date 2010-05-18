@@ -1,0 +1,51 @@
+INSTALLATION INSTRUCTIONS
+=========================
+This sample Django project is intended to demo the django-timemachine app.
+
+PRE-REQUISITES
+--------------
+1. Download and install Django from http://djangoproject.com/ .
+2. Do the Django tutorial.  It's easy, fun and it'll give you a background for this.
+3. Get Subversion from http://subversion.tigris.org/
+If you want to contribute:
+4. Get a Google Code account at http://code.google.com/ .
+5. Ping us, so we can figure out how to grant you access.  (It's still very new to us.)
+
+GETTING THE READ-ONLY VERSION
+-----------------------------
+This is intended for those who just want to kick the tires.  If you want to contribute, skip to the next section.
+
+1. Check out a read-only working copy anonymously over HTTP:
+$ svn checkout http://django-timemachine.googlecode.com/svn/trunk django-timemachine
+
+GETTING THE WRITEABLE VERSION
+-----------------------------
+This is intended for those who want to contribute.
+
+1. Check out a working copy over HTTPS:
+$ svn checkout https://django-timemachine.googlecode.com/svn/trunk django-timemachine
+
+CONFIGURATION
+-------------
+This is designed to run right away. If you want, you can create your own
+settings, so you can customize things. Do it like this:
+1. Create a my_settings.py file.
+$ cp settings.py my_settings.py
+2. Edit my_settings.py; setup your own versions of things like LOCAL_ROOT.
+3. Run django using your own settings. Use the "--settings" switch, like this:
+$ python manage.py --settings my_settings syncdb
+
+RUNNING THE PROJECT
+-------------------
+1. The first time, you will need to setup your database:
+$ python manage.py syncdb
+
+2. After that, you can start the development server:
+$ python manage.py runserver
+
+3. Point your browser at http://127.0.0.1:8000/admin/ to see the admin interface.
+
+(Right now, there's not much more to see. Start coding! ;)
+
+Have fun!
+JSA
