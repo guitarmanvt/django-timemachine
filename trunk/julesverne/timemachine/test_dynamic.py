@@ -188,13 +188,9 @@ def t_timemachine_dynamic_mode_offset(self):
 
 
 
-class TestTimeMachineDynamicSimple(unittest.TestCase):    
+class TestTimeMachineDynamic(unittest.TestCase):    
     def test_timemachine_dynamic_mode_simple(self):
         t_timemachine_dynamic_mode_simple(self)    
-
-
-
-class TestTimeMachineDynamicOffset(unittest.TestCase):
 
     def test_timemachine_dynamic_mode_offset(self):
         t_timemachine_dynamic_mode_offset(self)
@@ -206,11 +202,11 @@ def suite():
     suite = unittest.TestSuite()
     
     for index in range(len(DATETIMES)):
-        suite.addTest(TestTimeMachineDynamicSimple(
+        suite.addTest(TestTimeMachineDynamic(
             'test_timemachine_dynamic_mode_simple'))
 
     for index in range(len(OFFSET_DTS)):
-        suite.addTest(TestTimeMachineDynamicOffset(
+        suite.addTest(TestTimeMachineDynamic(
             'test_timemachine_dynamic_mode_offset'))
     
     
