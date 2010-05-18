@@ -1,5 +1,3 @@
-#REVIEW: Rework tests so that they individually finish in < 3 seconds each.
-#        Otherwise, person running tests will think they're timing out.
 
 from time import sleep
 import unittest
@@ -8,6 +6,8 @@ from datetime import timedelta
 from datetime import datetime as py_datetime
 from time_machine import datetime, round_to_seconds
 
+# These globals are needed in order to make a test suite
+# of many tests, each one taking less than 3 seconds to run.
 
 DATETIMES = []
 
