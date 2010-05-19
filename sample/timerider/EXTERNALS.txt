@@ -1,8 +1,0 @@
-# NOTE: By default, this checks out the timemachine in a writeable state.
-# This requires commit-access to the SVN for this project.
-# If you want to just check it out and see how it works, then 
-# change the "https" to "http" and run:
-#   svn propset svn:externals -F EXTERNALS.txt .
-# in your "timerider" directory.
-# Then perform an "svn update" to get the latest externals.
-https://django-timemachine.googlecode.com/svn/trunk/ timemachine
