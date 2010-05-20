@@ -94,6 +94,7 @@ OFFSET_MODE = 2
 _mode = PASSTHRU_MODE
 _fixed_date = None
 _fixed_datetime = None
+#REVIEW: Do you need to add _offset here, since it is used as a global later?
 _offset_delta = None
 
 def in_passthru_mode():
@@ -113,6 +114,7 @@ def set_passthru_mode():
     global _fixed_date
     global _fixed_datetime
     global _offset
+    #REVIEW: Do you need to add global _offset_delta?
     _mode = PASSTHRU_MODE
     _fixed_date = None
     _fixed_datetime = None
@@ -126,6 +128,7 @@ def set_fixed_mode(year, month, day,
     global _fixed_date
     global _fixed_datetime
     global _offset
+    #REVIEW: Do you need to add global _offset_delta?    
     _mode = FIXED_MODE
     _fixed_date = _datetime.date(year, month, day)
     _fixed_datetime = _datetime.datetime(year, month, day,
@@ -150,7 +153,9 @@ def set_offset_mode(days=0, seconds=0, microseconds=0,
     global _mode
     global _fixed_date
     global _fixed_datetime
+    #REVIEW: Do you need to replace this with global _offset_delta?  
     global _offset
+  
     _mode = OFFSET_MODE
     _fixed_date = None
     _fixed_datetime = None
