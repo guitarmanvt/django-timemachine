@@ -49,9 +49,17 @@ Using the timemachine 'frozen' mode:
 Frozen mode makes the timemachine stay on a pre-set datetime.
 
     >>> from timemachine import machine as datetime
-    >>> datetime.start_freeze_at_datetime(2010, 12, 25, 23, 59, 59) # 1 sec. to Santa! :)
+    >>> christmas = datetime.datetime(2010, 12, 24, 23, 59, 59) # almost! :)
+    >>> datetime.start_freeze_at_datetime(christmas)
     >>> print datetime.datetime.utcnow()
     datetime.datetime(2010, 12, 25, 23, 59, 59, ...)
+    >>> sleep(30) #30 seconds
+    >>> print datetime.datetime.utcnow() # nothing changes...
+    datetime.datetime(2010, 12, 25, 23, 59, 59, ...)
+    >>> datetime.move_freeze_by_delta(timedelta(days=7)) # ...until you tell it
+    >>> print datetime.datetime.utcnow() # now it reports New Year's Eve! :)
+    datetime.datetime(2010, 12, 31, 23, 59, 59, ...)
+
 
 Using the timemachine 'shifted' mode:
 ------------------------------------
@@ -60,9 +68,12 @@ In shifted mode, time appears to be shifted from the current time.
 
     >>> from timemachine import machine as datetime
     >>> datetime.start_shift_by_delta(years=-1) # Last year.
-    # Assuming that utcnow() returns 1 sec. to Santa in 2010...
+    # Assuming that utcnow() returns 1 sec. to Christmas in 2010...
     >>> print datetime.datetime.utcnow()
     datetime.datetime(2009, 12, 25, 23, 59, 59, ...)
+    >>> sleep(30) #30 seconds
+    >>> print datetime.datetime.utcnow()
+    datetime.datetime(2009, 12, 26, 00, 00, 29, ...)
 
 Note about 'time' and other modules
 -----------------------------------
