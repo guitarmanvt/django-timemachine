@@ -1,5 +1,5 @@
 """
-Drop-in replacement for Python's datetime module.
+Drop-in replacement for Python's standard 'datetime' module.
 
 Importing the datetime module
 -----------------------------
@@ -32,185 +32,194 @@ Here's how you can import the 'datetime' class.
     # Then, your code can remain the same:
     >>> print datetime.utcnow()
 
-Using the timemachine 'pass-thru' mode:
+Using the timemachine 'present' mode:
 ---------------------------------------
 
-Pass-thru mode makes the timemachine work exactly like the standard module.
+Present mode makes the timemachine work exactly like the standard module.
 
     >>> from timemachine import machine as datetime
-    >>> datetime.set_passthru_mode() # this is actually the default mode
+    >>> datetime.return_to_present() # this is actually the default mode
     >>> print datetime.datetime.utcnow()
 
     (It will print the current date in UTC.)
 
-Using the timemachine 'fixed' mode:
+Using the timemachine 'frozen' mode:
 -----------------------------------
 
-Fixed mode makes the timemachine stay on a pre-set datetime.
+Frozen mode makes the timemachine stay on a pre-set datetime.
 
     >>> from timemachine import machine as datetime
-    >>> datetime.set_fixed_mode(2010, 12, 25, 23, 59, 59) # 1 sec. to Santa! :)
+    >>> datetime.start_freeze_at_datetime(2010, 12, 25, 23, 59, 59) # 1 sec. to Santa! :)
     >>> print datetime.datetime.utcnow()
     datetime.datetime(2010, 12, 25, 23, 59, 59, ...)
 
-Using the timemachine 'offset' mode:
+Using the timemachine 'shifted' mode:
 ------------------------------------
 
-In offset mode, the timemachine reports time that has been offset from the current time.
+In shifted mode, time appears to be shifted from the current time.
 
     >>> from timemachine import machine as datetime
-    >>> datetime.set_offset_mode(years=-1) # Last year.
+    >>> datetime.start_shift_by_delta(years=-1) # Last year.
     # Assuming that utcnow() returns 1 sec. to Santa in 2010...
     >>> print datetime.datetime.utcnow()
     datetime.datetime(2009, 12, 25, 23, 59, 59, ...)
 
+Note about 'time' and other modules
+-----------------------------------
+
+This module does not handle any of Python's standard 'time' module.
+If you use any of these calls to 'time', then this module will not help you.
+(#TODO: Maybe write some functions to help?)
 """
 import datetime as _datetime #python's standard datetime module
-
-__all__ = [
-    # All the attributes of the standard datetime module:
-    'MAXYEAR', 'MINYEAR',
-    '__doc__', '__file__', '__name__', '__package__',
-    'date', 'datetime', 'datetime_CAPI', 'time', 'timedelta', 'tzinfo',
-    # Plus some special ones for timemachine:
-    'in_fixed_mode', 'in_offset_mode', 'in_passthru_mode',
-    'increment_fixed_mode',
-    'set_fixed_mode', 'set_offset_mode', 'set_passthru_mode',
-]
+import time as _time #python's standard time module, needed for frozen time
 
 # Attributes we just pass along from the standard datetime module:
 MAXYEAR = _datetime.MAXYEAR
 MINYEAR = _datetime.MINYEAR
 # Not sure what this does, but let's pass it along anyway:
 datetime_CAPI = _datetime.datetime_CAPI
+# Classes that are passed-thru as-is:
+time = _datetime.time
 timedelta = _datetime.timedelta
 tzinfo = _datetime.tzinfo
 
-
 # Time machine control constants and variables:
-PASSTHRU_MODE = 0
-FIXED_MODE = 1
-OFFSET_MODE = 2
-_mode = PASSTHRU_MODE
-_fixed_date = None
-_fixed_datetime = None
-#REVIEW: Do you need to add _offset here, since it is used as a global later?
-_offset_delta = None
+_PRESENT_MODE = 0
+_FROZEN_MODE = 1
+_SHIFTED_MODE = 2
+_mode = _PRESENT_MODE
+# Frozen time variables:
+_frozen_datetime = None
+_frozen_utc_delta = None
+# Shifted time variables:
+_shifted_delta = None
 
-def in_passthru_mode():
+def _is_present():
     global _mode
-    return (_mode == PASSTHRU_MODE)
+    return (_mode == _PRESENT_MODE)
 
-def in_fixed_mode():
+def _is_frozen():
     global _mode
-    return (_mode == FIXED_MODE)
+    return (_mode == _FROZEN_MODE)
 
-def in_offset_mode():
+def _is_shifted():
     global _mode
-    return (_mode == OFFSET_MODE)
+    return (_mode == _SHIFTED_MODE)
 
-def set_passthru_mode():
+def return_to_present():
+    """ Resets all time modes and resumes standard datetime operation. """
     global _mode
-    global _fixed_date
-    global _fixed_datetime
-    global _offset
-    #REVIEW: Do you need to add global _offset_delta?
-    _mode = PASSTHRU_MODE
-    _fixed_date = None
-    _fixed_datetime = None
-    _offset = None
-    _offset_delta = None
+    global _frozen_datetime
+    global _frozen_utc_delta
+    global _shifted_delta
+    _mode = _PRESENT_MODE
+    _frozen_datetime = None
+    _shifted_delta = None
 
-def set_fixed_mode(year, month, day,
-                   hour=0, minute=0, second=0,
-                   microsecond=0, tzinfo=None):
+def start_freeze_at_datetime(frozen):
+    """
+    Set the machine to a specific frozen time.
+    If frozen includes a tzinfo, that tzinfo will be ignored;
+    in other words, the machine is time-zone ignorant, just like all the
+    classmethods in the standard datetime package.
+    """
     global _mode
-    global _fixed_date
-    global _fixed_datetime
-    global _offset
-    #REVIEW: Do you need to add global _offset_delta?    
-    _mode = FIXED_MODE
-    _fixed_date = _datetime.date(year, month, day)
-    _fixed_datetime = _datetime.datetime(year, month, day,
-                   hour=0, minute=0, second=0,
-                   microsecond=0, tzinfo=None)
-    _offset = None
-    _offset_delta = None
+    global _frozen_datetime
+    global _frozen_utc_delta
+    return_to_present()
+    _mode = _FROZEN_MODE
+    # VERY IMPORTANT: _frozen_datetime must be a standard python datetime!
+    # Otherwise, you get recursion errors later.
+    _frozen_datetime = _datetime.datetime(
+        frozen.year, frozen.month, frozen.day,
+        frozen.hour, frozen.minute, frozen.second,
+        frozen.microsecond)
+    # Base UTC offset on the current system offset; it's not as accurate as
+    # it could be, esp. for some frozen dates, but we're kinda stuck.
+    # We could use pytz to implement a more elegant solution, but let's see
+    # what happens for now.
+    if _time.daylight == 1:
+        _frozen_utc_delta = timedelta(seconds=_time.altzone)
+    else:
+        _frozen_utc_delta = timedelta(seconds=_time.timezone)
 
-def increment_fixed_mode(days=0, seconds=0, microseconds=0,
-                         milliseconds=0, minutes=0, hours=0, weeks=0):
-    global _mode
-    global _fixed_date
-    global _fixed_datetime
-    assert (_mode == FIXED_MODE), 'Cannot increment unless in fixed mode!'
-    delta = _datetime.timedelta(days, seconds, microseconds,
-                                milliseconds, minutes, hours, weeks)
-    _fixed_date = _fixed_date + delta
-    _fixed_datetime = _fixed_datetime + delta
+def start_freeze_by_delta(delta):
+    calculated = _datetime.datetime.now() + delta
+    start_freeze_at_datetime(calculated)
 
-def set_offset_mode(days=0, seconds=0, microseconds=0,
-                    milliseconds=0, minutes=0, hours=0, weeks=0):
+def start_freeze_now():
+    """ Freeze time starting at the *real* now. """
+    start_freeze_at_datetime(_datetime.datetime.now())
+
+def move_freeze_by_delta(delta):
     global _mode
-    global _fixed_date
-    global _fixed_datetime
-    #REVIEW: Do you need to replace this with global _offset_delta?  
-    global _offset
-  
-    _mode = OFFSET_MODE
-    _fixed_date = None
-    _fixed_datetime = None
-    _offset_delta = _datetime.timedelta(days, seconds, microseconds,
-                                        milliseconds, minutes, hours, weeks)
+    global _frozen_datetime
+    assert (_mode == _FROZEN_MODE), 'Cannot increment unless in frozen mode!'
+    _frozen_datetime = _frozen_datetime + delta
+
+def start_shift_by_delta(delta):
+    global _mode
+    global _shifted_delta
+    _mode = _SHIFTED_MODE
+    _shifted_delta = delta
+
+def start_shift_at_datetime(shifted_datetime):
+    calcdelta = shifted_datetime - _datetime.datetime.now()
+    start_shift_by_delta(calcdelta)
 
 # Our own classes that override the standard datetime module:
 # NOTE: I hope this doesn't mess up the object signatures, if anyone is checking.
-class date(_datetime.date):
-    def _get_offset_time(self):
-        global _offset_delta
-        return (self + _offset_delta)
-
-    def ctime(self):
-        if in_fixed_mode():
-            return _fixed_date.ctime()
-        if in_offset_mode():
-            return self._get_offset_time().ctime()
-        return super(self, date).ctime()
-
-"""
-#TODO: Code the rest of these.
-    def day(self):
-
-    def isocalendar(self):
-
-    def isoformat(self):
-
-    def isoweekday(self):
-
-    def month(self):
-
-    def replace(self):
-
-    def resolution(self):
-
-    def strftime(self):
-
-    def timetuple(self):
-
-    def today(self):
-
-    def toordinal(self):
-
-    def weekday(self):
-
-    def year(self):
-"""
-
-
-
 class datetime(_datetime.datetime):
-    #TODO: Code similar to date.
-    pass
+    @classmethod
+    def now(cls, tz=None):
+        if _is_frozen():
+            return _frozen_datetime # Accomodate tz?
+        elif _is_shifted():
+            return _datetime.datetime.now(tz) + _shifted_delta
+        else:
+            return _datetime.datetime.now(tz)
 
-class time(_datetime.time):
-    #TODO: Code similar to date.
-    pass
+    @classmethod
+    def today(cls):
+        if _is_frozen():
+            return _frozen_datetime
+        elif _is_shifted():
+            return _datetime.datetime.today() + _shifted_delta
+        else:
+            return _datetime.datetime.today()
+
+    @classmethod
+    def utcnow(cls):
+        if _is_frozen():
+            return _frozen_datetime + _frozen_utc_delta
+        elif _is_shifted():
+            return _datetime.datetime.utcnow() + _shifted_delta
+        else:
+            return _datetime.datetime.utcnow()
+
+class date(_datetime.date):
+    @classmethod
+    def today(cls):
+        rpt = datetime.today()
+        # Return report_date as a date:
+        report_date = date(rpt.year, rpt.month, rpt.day)
+        return report_date
+
+def _proof(when):
+    print "@ %s:" % when
+    print "date.today()      :", date.today()
+    print "datetime.today()  :", datetime.today()
+    print "datetime.now()    :", datetime.now()
+    print "datetime.utcnow() :", datetime.utcnow()
+
+def _sanity_check():
+    # This is some proof-of-concept code.
+    _proof('Present')
+    start_freeze_at_datetime(datetime(2010,12,25,23,45,56))
+    _proof('Frozen')
+    start_shift_by_delta(timedelta(days=-5))
+    _proof('Shifted')
+
+if __name__=="__main__":
+    _sanity_check()
