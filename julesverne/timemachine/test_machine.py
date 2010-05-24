@@ -1,6 +1,10 @@
 """
 Test the "edge cases" of the machine module.
 """
+
+#REVIEW To be a little more rigorous, shouldn't this also be testing
+# an external module that uses machine.datetime?
+
 import unittest
 from machine import *
 from time import sleep
@@ -22,6 +26,9 @@ def nearly_simultaneous(datetime1, datetime2,
 
 class Test(unittest.TestCase):
     """ Test support functions. """
+#REVIEW: Do you not want to test it for cases when you pass in 
+#        a timedelta, a negative time_delta and for cases when 
+#        the second time is less than the first time?
     def test_nearly_simultaneous_true(self):
         a = datetime.now()
         sleep(0.4)
@@ -47,9 +54,11 @@ class TestFrozenTime(unittest.TestCase):
         x = datetime.now()
         sleep(1)
         y = datetime.now()
+        #REVIEW: Don't you want to test in regard to christmas?        
         self.assertEqual(x, y)
 
     def test_freeze_by_delta(self):
+        #REVIEW: Don't you want to test in regard to the present now()?    
         start_freeze_by_delta(timedelta(hours=-5))
         x = datetime.now()
         sleep(1)
@@ -63,7 +72,10 @@ class TestFrozenTime(unittest.TestCase):
         move_freeze_by_delta(timedelta(days=1))
         y = datetime.now()
         expected = (x + timedelta(days=1))
+        #REVIEW: Shouldn't the string be opposite of what's expected, in order 
+        #        to explain a test error?
         self.assertEqual(y, expected, 'Incremented time is one day later, as expected.')
+
 
     def test_freeze_now(self):
         return_to_present()
@@ -135,7 +147,9 @@ class TestTimeTravel(unittest.TestCase):
         self.assertTrue(nearly_simultaneous(u, w))
         self.assertEqual(w, x)
         #should be ~3 seconds difference
+        #REVIEW: Shouldn't this be (u, y, ...)
         self.assertTrue(nearly_simultaneous(x, y, timedelta(seconds=3.1)))
+        #REVIEW: How about timedelta(seconds = 3) <= y - u <= timedelta(seconds = 4)
 
 if __name__=='__main__':
     unittest.main()
