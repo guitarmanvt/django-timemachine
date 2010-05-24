@@ -10,6 +10,7 @@ Here are some examples using the datetime module:
     >>> import datetime
 
     # If you want to use the timemachine module:
+    #REVIEW: Shouldn't this be from machine import datetime?
     >>> from timemachine import machine as datetime
 
     # Then, your code can remain the same:
@@ -52,9 +53,11 @@ Frozen mode makes the timemachine stay on a pre-set datetime.
     >>> christmas = datetime.datetime(2010, 12, 24, 23, 59, 59) # almost! :)
     >>> datetime.start_freeze_at_datetime(christmas)
     >>> print datetime.datetime.utcnow()
+#REVIEW: Shouldn't this be datetime.datetime(2010, 12, 24, 23, 59, 59, ...)
     datetime.datetime(2010, 12, 25, 23, 59, 59, ...)
     >>> sleep(30) #30 seconds
     >>> print datetime.datetime.utcnow() # nothing changes...
+#REVIEW: Shouldn't this be datetime.datetime(2010, 12, 24, 23, 59, 59, ...)
     datetime.datetime(2010, 12, 25, 23, 59, 59, ...)
     >>> datetime.move_freeze_by_delta(timedelta(days=7)) # ...until you tell it
     >>> print datetime.datetime.utcnow() # now it reports New Year's Eve! :)
@@ -70,11 +73,15 @@ In shifted mode, time appears to be shifted from the current time.
     >>> datetime.start_shift_by_delta(years=-1) # Last year.
     # Assuming that utcnow() returns 1 sec. to Christmas in 2010...
     >>> print datetime.datetime.utcnow()
+#REVIEW: Shouldn't this be datetime.datetime(2010, 12, 24, 23, 59, 59, ...)    
     datetime.datetime(2009, 12, 25, 23, 59, 59, ...)
     >>> sleep(30) #30 seconds
     >>> print datetime.datetime.utcnow()
+#REVIEW: Shouldn't this be datetime.datetime(2010, 12, 25, 23, 59, 59, ...)    
     datetime.datetime(2009, 12, 26, 00, 00, 29, ...)
-
+#REVIEW: Do you want to add something about calling the shifted delta function?
+    
+    
 Note about 'time' and other modules
 -----------------------------------
 
@@ -156,10 +163,12 @@ def start_freeze_at_datetime(frozen):
         _frozen_utc_delta = timedelta(seconds=_time.timezone)
 
 def start_freeze_by_delta(delta):
+    #REVIEW: Shouldn't this be based on the present utcnow?
     calculated = _datetime.datetime.now() + delta
     start_freeze_at_datetime(calculated)
 
 def start_freeze_now():
+    #REVIEW: Wouldn't it be better to have a start_freeze_utcnow()?
     """ Freeze time starting at the *real* now. """
     start_freeze_at_datetime(_datetime.datetime.now())
 
@@ -176,6 +185,7 @@ def start_shift_by_delta(delta):
     _shifted_delta = delta
 
 def start_shift_at_datetime(shifted_datetime):
+    #REVIEW: Shouldn't this be based on the present utcnow?
     calcdelta = shifted_datetime - _datetime.datetime.now()
     start_shift_by_delta(calcdelta)
 
