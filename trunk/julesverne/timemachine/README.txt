@@ -19,8 +19,8 @@ What this means is:
 - The timemachine handles timezones the same way as the standard package.
 - Alternate time modes are based on system local time, *NOT* on UTC time.
 - The "utcnow()" function is based on the UTC offset *AT THE CURRENT LOCAL TIME
-  WHEN THE ALTERNATE TIME MODE IS STARTED*. In other words, if you use for a
-  long-running process that stays running across the Daylight Savings Time
+  WHEN THE ALTERNATE TIME MODE IS STARTED*. In other words, if you use this for
+  a long-running process that stays running across the Daylight Savings Time
   boundary, then you will get weird results. Just be prepared for that.
   Fortunately, most processes are milliseconds-long and won't bump into this.
 
