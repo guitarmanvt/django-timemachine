@@ -1,8 +1,7 @@
 import unittest
-from test_dynamic import test_main
-from test_mixed import *
-from test_static import *
+from utils import TestUtils
+from test_machine import TestFrozenTime, TestPresentTime, TestShiftedTime, \
+     TestTimeTravel
 
 if __name__ == "__main__":
-    test_main()
     unittest.main()

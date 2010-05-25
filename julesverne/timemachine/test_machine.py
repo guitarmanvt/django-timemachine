@@ -4,41 +4,16 @@ Test the "edge cases" of the machine module.
 
 #REVIEW To be a little more rigorous, shouldn't this also be testing
 # an external module that uses machine.datetime?
+#RESPONSE: I'm not testing python's import statements, so I don't think so.
+#          If we find a case where something weird happens, we'll add a test
+#          for it later. Good thought, anyway.
 
 import unittest
 from machine import *
 from time import sleep
+from utils import nearly_simultaneous
 
-christmas = datetime(2010, 12, 24, 23, 59, 59) # almost Christmas! :)
-
-def nearly_simultaneous(datetime1, datetime2,
-                        tolerance=timedelta(microseconds=500000)):
-    """
-    Returns True if datetimes are within tolerance (in microseconds) of each
-    other.
-    """
-    if tolerance.days < 0:
-        tolerance *= -1
-    diff = (datetime1 - datetime2)
-    if diff.days < 0:
-        diff *= -1
-    return (diff < tolerance)
-
-class Test(unittest.TestCase):
-    """ Test support functions. """
-#REVIEW: Do you not want to test it for cases when you pass in 
-#        a timedelta, a negative time_delta and for cases when 
-#        the second time is less than the first time?
-    def test_nearly_simultaneous_true(self):
-        a = datetime.now()
-        sleep(0.4)
-        b = datetime.now()
-        self.assertTrue(nearly_simultaneous(a, b))
-
-    def test_nearly_simultaneous_false(self):
-        a = datetime(2010,12,25)
-        b = a + timedelta(seconds=1)
-        self.assertFalse(nearly_simultaneous(a, b))
+christmas = datetime(2009, 12, 24, 23, 59, 59) # almost Christmas! :)
 
 class TestPresentTime(unittest.TestCase):
     def test_time_passes(self):
@@ -49,43 +24,71 @@ class TestPresentTime(unittest.TestCase):
         self.assertTrue(x < y, 'Prior time is not before later time.')
 
 class TestFrozenTime(unittest.TestCase):
-    def test_freeze_on_datetime(self):
+    def test_freeze_on_datetime_start(self):
+        """ Freeze on datetime did not start at the right time. """
+        return_to_present()
+        x = datetime.now()
+        start_freeze_at_datetime(christmas)
+        y = datetime.now()
+        self.assertFalse(nearly_simultaneous(x, y))
+        self.assertTrue(nearly_simultaneous(y, christmas))
+
+    def test_freeze_by_delta_start(self):
+        """ Freeze by delta did not start at the right time. """
+        delta = timedelta(hours=-5)
+        return_to_present()
+        x = datetime.now()
+        start_freeze_by_delta(delta)
+        y = datetime.now()
+        z = x + delta
+        self.assertTrue(nearly_simultaneous(y, z))
+
+    def test_freeze_now_start(self):
+        """ Freeze by delta did not start at the right time. """
+        return_to_present()
+        u = datetime.now()
+        start_freeze_now()
+        w = datetime.now()
+        self.assertTrue(nearly_simultaneous(u, w))
+
+    def test_freeze_without_move(self):
+        """ Frozen time without move did not stay constant. """
         start_freeze_at_datetime(christmas)
         x = datetime.now()
         sleep(1)
         y = datetime.now()
-        #REVIEW: Don't you want to test in regard to christmas?        
         self.assertEqual(x, y)
+        # NOTE: This is not comparing to 'christmas', because that's
+        # already covered in test_freeze_on_datetime().
 
-    def test_freeze_by_delta(self):
-        #REVIEW: Don't you want to test in regard to the present now()?    
-        start_freeze_by_delta(timedelta(hours=-5))
+    def test_move_negative(self):
+        """ Frozen time did not move correctly with negative delta. """
+        start_freeze_at_datetime(christmas)
         x = datetime.now()
         sleep(1)
+        move_freeze_by_delta(timedelta(days=-1))
         y = datetime.now()
-        self.assertEqual(x, y)
+        expected = (x + timedelta(days=-1))
+        self.assertEqual(y, expected)
 
-    def test_increment(self):
+    def test_move_positive(self):
+        """ Frozen time did not move correctly with positive delta. """
         start_freeze_at_datetime(christmas)
         x = datetime.now()
         sleep(1)
         move_freeze_by_delta(timedelta(days=1))
         y = datetime.now()
         expected = (x + timedelta(days=1))
-        #REVIEW: Shouldn't the string be opposite of what's expected, in order 
-        #        to explain a test error?
-        self.assertEqual(y, expected, 'Incremented time is one day later, as expected.')
+        self.assertEqual(y, expected)
 
-
-    def test_freeze_now(self):
-        return_to_present()
-        u = datetime.now()
-        start_freeze_now()
-        w = datetime.now()
-        sleep(1)
+    def test_move_zero(self):
+        """ Frozen time did not remain constant with zero delta. """
+        start_freeze_at_datetime(christmas)
         x = datetime.now()
-        self.assertTrue(nearly_simultaneous(u, w))
-        self.assertEqual(w, x)
+        sleep(1)
+        move_freeze_by_delta(timedelta())
+        y = datetime.now()
+        self.assertEqual(x, y)
 
     def test_utc_now(self):
         " utcnow reports different offset during frozen time than present time "
@@ -100,22 +103,30 @@ class TestFrozenTime(unittest.TestCase):
         self.assertTrue(nearly_simultaneous(b, e))
 
 class TestShiftedTime(unittest.TestCase):
-    def test_shift_by_datetime(self):
+    def test_shift_by_datetime_start(self):
+        """ Shifted time did not start at the specified datetime. """
+        return_to_present()
         start_shift_at_datetime(christmas)
         y = datetime.now()
-        sleep(1)
-        z = datetime.now()
-        self.assertTrue(y < z)
-        self.assertEqual(z.day, 25)
-        self.assertEqual(z.hour, 0)
-        self.assertEqual(z.minute, 0)
+        self.assertTrue(nearly_simultaneous(y, christmas))
 
-    def test_shift_by_delta(self):
+    def test_shift_by_delta_start(self):
+        """ Shifted time did not start at the specified delta. """
         return_to_present()
         x = datetime.now()
         start_shift_by_delta(timedelta(days=1))
         y = datetime.now()
         expected = x + timedelta(days=1)
+        self.assertTrue(nearly_simultaneous(y, expected))
+
+    def test_shifted_time_moves(self):
+        """ Shifted time is not moving in parallel with normal time. """
+        return_to_present()
+        start_shift_at_datetime(christmas)
+        x = datetime.now()
+        sleep(1)
+        y = datetime.now()
+        expected = x + timedelta(seconds=1)
         self.assertTrue(nearly_simultaneous(y, expected))
 
     def test_utc_now(self):
@@ -135,21 +146,19 @@ class TestTimeTravel(unittest.TestCase):
 
     def test_present_frozen_present(self):
         return_to_present()
-        u = datetime.now()
+        normal_start = datetime.now()
         start_freeze_now()
         sleep(1)
-        w = datetime.now()
+        frozen1 = datetime.now()
         sleep(1)
-        x = datetime.now()
+        frozen2 = datetime.now()
         return_to_present()
         sleep(1)
-        y = datetime.now()
-        self.assertTrue(nearly_simultaneous(u, w))
-        self.assertEqual(w, x)
-        #should be ~3 seconds difference
-        #REVIEW: Shouldn't this be (u, y, ...)
-        self.assertTrue(nearly_simultaneous(x, y, timedelta(seconds=3.1)))
-        #REVIEW: How about timedelta(seconds = 3) <= y - u <= timedelta(seconds = 4)
+        back_to_normal = datetime.now()
+        expected = normal_start + timedelta(seconds=3)
+        self.assertTrue(nearly_simultaneous(normal_start, frozen1))
+        self.assertEqual(frozen1, frozen2)
+        self.assertTrue(nearly_simultaneous(back_to_normal, expected))
 
 if __name__=='__main__':
     unittest.main()
