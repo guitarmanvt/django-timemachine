@@ -2,11 +2,6 @@
 Test the "edge cases" of the machine module.
 """
 
-#REVIEW To be a little more rigorous, shouldn't this also be testing
-# an external module that uses machine.datetime?
-#RESPONSE: I'm not testing python's import statements, so I don't think so.
-#          If we find a case where something weird happens, we'll add a test
-#          for it later. Good thought, anyway.
 
 import unittest
 from machine import *
@@ -31,6 +26,7 @@ class TestFrozenTime(unittest.TestCase):
         start_freeze_at_datetime(christmas)
         y = datetime.now()
         self.assertFalse(nearly_simultaneous(x, y))
+        #REVIEW: self.assertEqual(...
         self.assertTrue(nearly_simultaneous(y, christmas))
 
     def test_freeze_by_delta_start(self):
