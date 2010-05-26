@@ -26,8 +26,7 @@ class TestFrozenTime(unittest.TestCase):
         start_freeze_at_datetime(christmas)
         y = datetime.now()
         self.assertFalse(nearly_simultaneous(x, y))
-        #REVIEW: self.assertEqual(...
-        self.assertTrue(nearly_simultaneous(y, christmas))
+        self.assertEqual(y, christmas)
 
     def test_freeze_by_delta_start(self):
         """ Freeze by delta did not start at the right time. """

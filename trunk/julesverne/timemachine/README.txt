@@ -114,8 +114,7 @@ In shifted mode, time appears to be shifted from the current time.
     datetime.datetime(2009, 12, 24, 23, 59, 59, ...)
     >>> sleep(30) #30 seconds of real time, same as 30 seconds of shifted time
     >>> print datetime.datetime.now()
-    #REVIEW: Not Christmas yet? 
-    datetime.datetime(2009, 12, 24, 00, 00, 29, ...)
+    datetime.datetime(2009, 12, 25, 00, 00, 29, ...)
 
 You can also move to shifted time starting at a certain delta:
 
@@ -125,7 +124,6 @@ You can also move to shifted time starting at a certain delta:
     datetime.datetime(2010, 12, 24, 23, 59, 59, ...)
     >>> sleep(30) #30 seconds of real time, same as 30 seconds of shifted time
     >>> print datetime.datetime.now()
-    #REVIEW: Not Christmas yet?     
-    datetime.datetime(2010, 12, 24, 00, 00, 29, ...)
+    datetime.datetime(2010, 12, 25, 00, 00, 29, ...)
 
 FINIS.
